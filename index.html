@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>高德-OSM-天地图瓦片对比</title>
+    <meta charset="utf-8" /> 
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="./Leaflet.PolylineMeasure-master/Leaflet.PolylineMeasure.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://cdn.bootcss.com/proj4js/2.4.3/proj4.js"></script>
+    <script src="https://cdn.bootcss.com/proj4leaflet/1.0.1/proj4leaflet.min.js"></script> 
+    <script src="./Leaflet.PolylineMeasure-master/Leaflet.PolylineMeasure.js" ></script>
+    <script type="text/javascript" src="https://api.map.baidu.com/api?v=3.0&ak=GOyHn5xQ1BGn87ah7a6IIEoC6nvxrdIz"></script>
+    <style>
+    body { 
+        padding: 0; 
+        margin: 0;
+    } 
+    html, 
+    body, 
+    #map { 
+        height: 100%; 
+        width: 100%; 
+    }  
+    </style> 
+</head>
+<body> 
+    <div id="map"></div> 
+</body> 
+<script>
+ 
+var tiandituKey='44964a97c8c44e4d04efdf3cba594467';
+ 
+var gaodeNormalMapUrl = 'http://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}',
+ 
+    gaodeSatelliteMapUrl = 'http://webst0{s}.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}',
+ 
+    gaodeAnnotionMapUrl = 'http://webst0{s}.is.autonavi.com/appmaptile?style=8&x={x}&y={y}&z={z}',
+ 
+    osmNormalMapUrl = 'https://{s}.tile.osm.org/{z}/{x}/{y}.png',
+ 
+    tiandituSatelliteMapUrl = 'http://t{s}.tianditu.gov.cn/DataServer?T=img_w&X={x}&Y={y}&L={z}&tk='+tiandituKey,
+ 
+    tiandituAnnotionMapUrl = 'http://t{s}.tianditu.gov.cn/DataServer?T=cia_w&X={x}&Y={y}&L={z}&tk='+tiandituKey;
+
+    baidumapUrl='http://api.map.baidu.com/marker?lang=zh_cn&x={x}&y={y}&z={z}&scaler=1';//http://api.map.baidu.com/marker?
+ 
+var gaodeNormalMap = L.tileLayer(gaodeNormalMapUrl, {
+ 
+        subdomains: '1234',
+ 
+        maxZoom: 21,
+ 
+        minZoom: 3,
+ 
+        coordType: 'gcj02'
+ 
+    }),
+
+    baidumap= L.tileLayer(baidumapUrl,{
+
+        subdomains:'1234',
+        maxZoom:21,
+        minZoom:3,
+        coordType:'gcj02'
+    }),
+ 
+    gaodeNormalMapOp = L.tileLayer(gaodeNormalMapUrl, {
+ 
+        subdomains: '1234',
+ 
+        maxZoom: 21,
+ 
+        minZoom: 3,
+ 
+        opacity: 0.6,
+ 
+        coordType: 'gcj02'
+ 
+    }),
+ 
+    gaodeSatelliteMap = L.tileLayer(gaodeSatelliteMapUrl, {
+ 
+        subdomains: '1234',
+ 
+        maxZoom: 21,
+ 
+        minZoom: 3,
+ 
+        coordType: 'gcj02'
+ 
+    }),
+ 
+    gaodeSatelliteMapOp = L.tileLayer(gaodeSatelliteMapUrl, {
+ 
+        subdomains: '1234',
+ 
+        maxZoom: 21,
+ 
+        minZoom: 3,
+ 
+        opacity: 0.6,
+ 
+        coordType: 'gcj02'
+ 
+    }),
+ 
+    gaodeAnnotionMap = L.tileLayer(gaodeAnnotionMapUrl, {
+ 
+        subdomains: '1234',
+ 
+        maxZoom: 21,
+ 
+        minZoom: 3,
+ 
+        coordType: 'gcj02'
+ 
+    }),
+ 
+    osmNormalMap = L.tileLayer(osmNormalMapUrl, {
+ 
+        subdomains: 'abc',
+ 
+        maxZoom: 21,
+ 
+        minZoom: 3,
+ 
+        coordType: 'gcj02'
+ 
+    }),
+ 
+    osmNormalMapOp = L.tileLayer(osmNormalMapUrl, {
+ 
+        subdomains: 'abc',
+ 
+        maxZoom: 21,
+ 
+        minZoom: 3,
+ 
+        opacity: 0.6
+ 
+    }),
+ 
+    tiandituSatelliteMap = L.tileLayer(tiandituSatelliteMapUrl, {
+ 
+        subdomains: '01234567',
+ 
+        maxZoom: 21,
+ 
+        minZoom: 3
+ 
+    }),
+ 
+    tiandituSatelliteMapOp = L.tileLayer(tiandituSatelliteMapUrl, {
+ 
+        subdomains: '01234567',
+ 
+        maxZoom: 21,
+ 
+        minZoom: 3,
+ 
+        opacity: 0.6
+ 
+    }),
+ 
+    tiandituAnnotionMap = L.tileLayer(tiandituAnnotionMapUrl, {
+ 
+        subdomains: '01234567',
+ 
+        maxZoom: 21,
+ 
+        minZoom: 3
+ 
+    });
+ 
+var baseLayers = {
+ 
+    "高德地图": gaodeNormalMap,
+ 
+    "高德影像": gaodeSatelliteMap,
+ 
+    "OSM地图": osmNormalMap,
+ 
+    "天地图影像": tiandituSatelliteMap,
+
+    "百度地图": baidumap
+ 
+};
+ 
+var overlayLayers = {
+ 
+    "高德标注": gaodeAnnotionMap,
+ 
+    "高德地图半透明": gaodeNormalMapOp,
+ 
+    "高德影像半透明": gaodeSatelliteMapOp,
+ 
+   "天地图标注": tiandituAnnotionMap,
+ 
+    "OSM地图半透明": osmNormalMapOp,
+ 
+   "天地图影像半透明": tiandituSatelliteMapOp
+ 
+};
+ 
+var map = new L.Map('map', {
+ 
+    //center: [41, 115],
+ 
+    zoom: 3,
+ 
+    layers: [gaodeNormalMap]
+ 
+});
+
+ L.control.layers(baseLayers, overlayLayers).addTo(map);
+ map.setView(new L.LatLng(23.055988,113.383943),14);
+
+ var measureTool = new L.control.measure({position:'bottomleft',title:'测量工具',collapsed:true})
+ L.measure={
+    linearMeasurement: "距离测量",
+    areaMeasurement: "面积测量",
+    start: "开始",
+    meter: "米",
+    kilometer: "公里",
+    squareMeter: "平方米",
+    squareKilometers: "平方公里",
+ };
+ measureTool.addTo (map);
+
+ var polylineMeasure = L.control.polylineMeasure ({position:'topleft', unit:'kilometres', showBearings:true, clearMeasurementsOnStop: false, showClearControl: true, showUnitControl: true})
+ polylineMeasure.addTo (map);
+//leaflet的加载网格图层方法，它是L.TileLayer的基类，更新_setZoomTransform、_getTiledPixelBounds方法
+
+ 
+// L.GridLayer.include({
+ 
+//     _setZoomTransform: function (level, center, zoom) {
+ 
+//         if (center != undefined && this.options) {
+ 
+//             // 把鼠标坐标由WGS84坐标系转为DB09或GCJ02坐标系，leaflet从图面上获取的坐标是WGS84坐标系的，需要转换到瓦片对应的坐标系，才能匹配瓦片
+ 
+//             if (this.options.coordType == 'gcj02') {
+ 
+//                 center = L.coordTransform().wgs84_To_gcj02(center.lng, center.lat);
+ 
+//             } else if (this.options.coordType == 'bd09') {
+ 
+//                 center = L.coordTransform().wgs84_To_bd09(center.lng, center.lat);
+ 
+//             }
+ 
+//         }
+ 
+//         var viewHalf = this._map.getSize().divideBy(2);
+ 
+//         var mapProject = this._map.project(center, zoom);
+ 
+//         var mapPanePos = this._map._mapPane._leaflet_pos;
+ 
+//         var newPixelOrigin = mapProject.subtract(viewHalf)._add(mapPanePos).round();
+ 
+//         console.log('viewHalf:'+viewHalf);
+ 
+//         console.log('mapProject:'+mapProject);
+ 
+//         console.log('mapPanePos:'+mapPanePos);
+ 
+//         console.log('newPixelOrigin:'+newPixelOrigin);
+ 
+//         var scale = this._map.getZoomScale(zoom, level.zoom),
+ 
+//             translate = level.origin.multiplyBy(scale)
+ 
+//             .subtract(newPixelOrigin).round();
+ 
+//         console.log('scale:'+scale);
+ 
+//         console.log('translate:'+translate);
+ 
+//         if (L.Browser.any3d) {
+ 
+//             L.DomUtil.setTransform(level.el, translate, scale);
+ 
+//         } else {
+ 
+//             L.DomUtil.setPosition(level.el, translate);
+ 
+//         }
+ 
+//     },
+ 
+//     // 获取地图容器像素四至，根据修改后的鼠标中心点获取
+ 
+//     _getTiledPixelBounds: function (center) {
+ 
+//         if (center != undefined && this.options) {
+ 
+//             if (this.options.coordType == 'gcj02') {
+ 
+//                 center = L.coordTransform().wgs84_To_gcj02(center.lng, center.lat);
+ 
+//             } else if (this.options.coordType == 'bd09') {
+ 
+//                 center = L.coordTransform().wgs84_To_bd09(center.lng, center.lat);
+ 
+//             }
+ 
+//         }
+ 
+//         var map = this._map,
+ 
+//             mapZoom = map._animatingZoom ? Math.max(map._animateToZoom, map.getZoom()) : map.getZoom(),
+ 
+//             scale = map.getZoomScale(mapZoom, this._tileZoom),
+ 
+//             pixelCenter = map.project(center, this._tileZoom).floor(),
+ 
+//             halfSize = map.getSize().divideBy(scale * 2);
+ 
+//         return new L.Bounds(pixelCenter.subtract(halfSize), pixelCenter.add(halfSize));
+ 
+//     }
+ 
+// })
+ 
+// L.CoordTransform = function () {
+ 
+//     //bd09转wgs84
+ 
+//     this.bd09_To_wgs84 = function(lng, lat) {
+ 
+//         var gcj02 = this.bd09_To_gcj02(lng, lat);
+ 
+//         var wgs84 = this.gcj02_To_wgs84(gcj02.lng, gcj02.lat);
+ 
+//         return wgs84;
+ 
+//     }
+ 
+//     //wgs84转bd09
+ 
+//     this.wgs84_To_bd09 = function (lng, lat) {
+ 
+//         var gcj02 = this.wgs84_To_gcj02(lng, lat);
+ 
+//         var bd09 = this.gcj02_To_bd09(gcj02.lng, gcj02.lat);
+ 
+//         return bd09;
+ 
+//     }
+ 
+//     //wgs84转gcj02
+ 
+//     this.wgs84_To_gcj02 = function (lng, lat) {
+ 
+//         var dLat = transformLat(lng - 105.0, lat - 35.0);
+ 
+//         var dLng = transformLng(lng - 105.0, lat - 35.0);
+ 
+//         var radLat = lat / 180.0 * pi;
+ 
+//         var magic = Math.sin(radLat);
+ 
+//         magic = 1 - ee * magic * magic;
+ 
+//         var sqrtMagic = Math.sqrt(magic);
+ 
+//         dLat = (dLat * 180.0) / ((a * (1 - ee)) / (magic * sqrtMagic) * pi);
+ 
+//         dLng = (dLng * 180.0) / (a / sqrtMagic * Math.cos(radLat) * pi);
+ 
+//         var mgLat = lat + dLat;
+ 
+//         var mgLng = lng + dLng;
+ 
+//         var newCoord = {
+ 
+//             lng: mgLng,
+ 
+//             lat: mgLat
+ 
+//         };
+ 
+//         return newCoord;
+ 
+//     }
+ 
+//     //gcj02转wgs84
+ 
+//     this.gcj02_To_wgs84 = function (lng, lat) {
+ 
+//         var coord = transform(lng, lat);
+ 
+//         var lontitude = lng * 2 - coord.lng;
+ 
+//         var latitude = lat * 2 - coord.lat;
+ 
+//         var newCoord = {
+ 
+//             lng: lontitude,
+ 
+//             lat: latitude
+ 
+//         };
+ 
+//         return newCoord;
+ 
+//     }
+ 
+//     //gcj02转bd09
+ 
+//     this.gcj02_To_bd09 = function (lng, lat) {
+ 
+//         var z = Math.sqrt(lng * lng + lat * lat) + 0.00002 * Math.sin(lat * x_pi);
+ 
+//         var theta = Math.atan2(lat, lng) + 0.000003 * Math.cos(lng * x_pi);
+ 
+//         var bd_lng = z * Math.cos(theta) + 0.0065;
+ 
+//         var bd_lat = z * Math.sin(theta) + 0.006;
+ 
+//         var newCoord = {
+ 
+//             lng: bd_lng,
+ 
+//             lat: bd_lat
+ 
+//         };
+ 
+//         return newCoord;
+ 
+//     }
+ 
+//     //bg09转gcj02
+ 
+//     this.bd09_To_gcj02 = function (lng, lat) {
+ 
+//         var x = lng - 0.0065;
+ 
+//         var y = lat - 0.006;
+ 
+//         var z = Math.sqrt(x * x + y * y) - 0.00002 * Math.sin(y * x_pi);
+ 
+//         var theta = Math.atan2(y, x) - 0.000003 * Math.cos(x * x_pi);
+ 
+//         var lontitude = z * Math.cos(theta);
+ 
+//         var latitude = z * Math.sin(theta);
+ 
+//         var newCoord = {
+ 
+//             lng: lontitude,
+ 
+//             lat: latitude
+ 
+//         };
+ 
+//         return newCoord;
+ 
+//     }
+ 
+ 
+ 
+//     var pi = 3.1415926535897932384626;
+ 
+//     var a = 6378245.0;
+ 
+//     var ee = 0.00669342162296594323;
+ 
+//     var x_pi = pi * 3000.0 / 180.0;
+ 
+//     var R = 6378137;
+ 
+ 
+ 
+//     function transform(lng, lat) {
+ 
+//         var dLat = transformLat(lng - 105.0, lat - 35.0);
+ 
+//         var dLng = transformLng(lng - 105.0, lat - 35.0);
+ 
+//         var radLat = lat / 180.0 * pi;
+ 
+//         var magic = Math.sin(radLat);
+ 
+//         magic = 1 - ee * magic * magic;
+ 
+//         var sqrtMagic = Math.sqrt(magic);
+ 
+//         dLat = (dLat * 180.0) / ((a * (1 - ee)) / (magic * sqrtMagic) * pi);
+ 
+//         dLng = (dLng * 180.0) / (a / sqrtMagic * Math.cos(radLat) * pi);
+ 
+//         var mgLat = lat + dLat;
+ 
+//         var mgLng = lng + dLng;
+ 
+//         var newCoord = {
+ 
+//             lng: mgLng,
+ 
+//             lat: mgLat
+ 
+//         };
+ 
+//         return newCoord;
+ 
+//     }
+ 
+//     function transformLat(x, y) {
+ 
+//         var ret = -100.0 + 2.0 * x + 3.0 * y + 0.2 * y * y + 0.1 * x * y + 0.2 * Math.sqrt(Math.abs(x));
+ 
+//         ret += (20.0 * Math.sin(6.0 * x * pi) + 20.0 * Math.sin(2.0 * x * pi)) * 2.0 / 3.0;
+ 
+//         ret += (20.0 * Math.sin(y * pi) + 40.0 * Math.sin(y / 3.0 * pi)) * 2.0 / 3.0;
+ 
+//         ret += (160.0 * Math.sin(y / 12.0 * pi) + 320 * Math.sin(y * pi / 30.0)) * 2.0 / 3.0;
+ 
+//         return ret;
+ 
+//     }
+ 
+ 
+ 
+//     function transformLng(x, y) {
+ 
+//         var ret = 300.0 + x + 2.0 * y + 0.1 * x * x + 0.1 * x * y + 0.1 * Math.sqrt(Math.abs(x));
+ 
+//         ret += (20.0 * Math.sin(6.0 * x * pi) + 20.0 * Math.sin(2.0 * x * pi)) * 2.0 / 3.0;
+ 
+//         ret += (20.0 * Math.sin(x * pi) + 40.0 * Math.sin(x / 3.0 * pi)) * 2.0 / 3.0;
+ 
+//         ret += (150.0 * Math.sin(x / 12.0 * pi) + 300.0 * Math.sin(x / 30.0 * pi)) * 2.0 / 3.0;
+ 
+//         return ret;
+ 
+//     }
+ 
+// }
+ 
+ 
+ 
+// L.coordTransform = function () {
+ 
+//     return new L.CoordTransform();
+ 
+// }
+ 
+
+
+
+ 
+</script>
+ 
+</html>
