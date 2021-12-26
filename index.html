@@ -2,10 +2,11 @@
 <html>
 <head>
     <title>地震网</title>
-    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css" />
-    <link rel="stylesheet" href="./Leaflet.PolylineMeasure.css" />
-    <script src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js"></script>
-    <script src="./Leaflet.PolylineMeasure.js" ></script>
+    <link rel="stylesheet" href="./src/css/Leaflet.PolylineMeasure.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
+    <script src="https://widget.qweather.net/standard/static/js/he-standard-common.js?v=2.0"></script>
+    <script src="./src/js/Leaflet.PolylineMeasure.js" ></script>
     <style>
     #map { 
         width: 1200px; 
@@ -15,24 +16,60 @@
     </style>
 </head>
 <body>
-<div style="width: 100px; margin:0 auto">地震网</div>
+<div style="text-align:center;font-family:arial;font-size:50px;">地震网</div>
 
 <!-- <div align="center"><img src="table.jpg" width=100/></div>  -->
 
 <div id="map"></div>
-<script src="./leaflet-heat.js"></script>
-<script src="./MyMousePosition.js"></script>
-<script src="./earthqu.js"></script>
+<script src="./src/js/leaflet-heat.js"></script>
+<script src="./src/js/MyMousePosition.js"></script>
+<script src="./src/js/json.js" type="text/javascript"></script>
+<script src="./src/js/earthqu.js"></script>
+<script src="./eqdata.json"></script>
+
+
 <script>
+var tiandituKey='e90f95f9708d3c572ec799b6257bfd39';
+var Point = getFeatures();
+var osmNormalMapUrl = 'https://{s}.tile.osm.org/{z}/{x}/{y}.png',
+    tiandituSatelliteMapUrl = 'http://t{s}.tianditu.gov.cn/DataServer?T=img_w&X={x}&Y={y}&L={z}&tk='+tiandituKey;
 
-var map = L.map('map').setView([34, 113], 4);
+var osmNormalMapOp = L.tileLayer(osmNormalMapUrl, {subdomains: 'abc',maxZoom: 21,minZoom: 3,opacity: 0.6}),
+    osmNormalMap = L.tileLayer(osmNormalMapUrl, {subdomains: 'abc',maxZoom: 21,minZoom: 3,coordType: 'gcj02'}),
+    tiandituSatelliteMap = L.tileLayer(tiandituSatelliteMapUrl, {subdomains: '01234567',maxZoom: 21,minZoom: 3}),
+    heat = L.heatLayer(addressPoints,{minOpacity : 0.5,radius : 12,}),
+    dizhen= L.geoJSON([Point],{style:function(feature){},onEachFeature: onEachFeature})
+;
 
-var tiles = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',}).addTo(map);
+
+var baseLayers = {
+ 
+ "OSM地图": osmNormalMap,
+
+ "天地图影像": tiandituSatelliteMap,
+
+
+};
+
+var overlayLayers = {
+ 
+ "OSM地图半透明": osmNormalMapOp,
+
+ "热力图":heat,
+ 
+ "地震点":dizhen
+
+};
+
+var map = new L.map('map',{zoom: 3,layers: [osmNormalMap]}).setView([34, 113], 4,);
+L.control.layers(baseLayers, overlayLayers).addTo(map);
+
 
 addressPoints = addressPoints.map(function (p) { return [p[0], p[1]]; });
 
-var heat = L.heatLayer(addressPoints).addTo(map);
 
+
+//获取鼠标位置的坐标
 mousePosition = L.control.myMousePosition(
     {
         position: 'bottomleft'// 显示位置，有4个'topleft', 'topright(默认)', 'bottomleft' or 'bottomright'
@@ -40,7 +77,29 @@ mousePosition = L.control.myMousePosition(
 ).addTo(map);
 var polylineMeasure = L.control.polylineMeasure ({position:'topleft', unit:'kilometres', showBearings:true, clearMeasurementsOnStop: false, showClearControl: true, showUnitControl: true})
 polylineMeasure.addTo (map);
+
+
+
+
+function onEachFeature(feature, layer) {
+	if (feature.properties.location && feature.properties.level&&feature.properties.lat&&feature.properties.long&&feature.properties.depth) {
+			popupContent = '地点:'+'\n'+feature.properties.location+'<br>'+'震级:'+feature.properties.level+'<br>'+'纬度:'+feature.properties.lat+'<br>'+'经度:'+feature.properties.long+'<br>'+'深度:'+feature.properties.depth+'m';
+			layer.bindPopup(popupContent);}}
+
+</script>
+
+<div id="he-plugin-standard"></div>
+<script>
+WIDGET = {
+  "CONFIG": {
+    "layout": "2",
+    "width": 230,
+    "height": 270,
+    "background": "3",
+    "dataColor": "FFFFFF",
+    "key": "8db718e07323453f813e027ce1dbc201"
+  }
+}
 </script>
 </body>
 </html>
-
