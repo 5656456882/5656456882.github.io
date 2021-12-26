@@ -34,9 +34,9 @@ var Point = getFeatures();
 var osmNormalMapUrl = 'https://{s}.tile.osm.org/{z}/{x}/{y}.png',
     tiandituSatelliteMapUrl = 'http://t{s}.tianditu.gov.cn/DataServer?T=img_w&X={x}&Y={y}&L={z}&tk='+tiandituKey;
 
-var osmNormalMapOp = L.tileLayer(osmNormalMapUrl, {subdomains: 'abc',maxZoom: 21,minZoom: 3,opacity: 0.6}),
-    osmNormalMap = L.tileLayer(osmNormalMapUrl, {subdomains: 'abc',maxZoom: 21,minZoom: 3,coordType: 'gcj02'}),
-    tiandituSatelliteMap = L.tileLayer(tiandituSatelliteMapUrl, {subdomains: '01234567',maxZoom: 21,minZoom: 3}),
+var osmNormalMapOp = L.tileLayer(osmNormalMapUrl, {subdomains: 'abc',maxZoom: 21,minZoom: 2,opacity: 0.6}),
+    osmNormalMap = L.tileLayer(osmNormalMapUrl, {subdomains: 'abc',maxZoom: 21,minZoom: 2,coordType: 'gcj02'}),
+    tiandituSatelliteMap = L.tileLayer(tiandituSatelliteMapUrl, {subdomains: '01234567',maxZoom: 21,minZoom: 2}),
     heat = L.heatLayer(addressPoints,{minOpacity : 0.5,radius : 12,}),
     dizhen= L.geoJSON([Point],{style:function(feature){},onEachFeature: onEachFeature})
 ;
