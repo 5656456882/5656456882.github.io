@@ -18,6 +18,7 @@
 <body>
 <div style="text-align:center;font-family:arial;font-size:50px;">地震网</div>
 
+
 <!-- <div align="center"><img src="table.jpg" width=100/></div>  -->
 
 <div id="map"></div>
@@ -31,15 +32,16 @@
 <script>
 var tiandituKey='e90f95f9708d3c572ec799b6257bfd39';
 var Point = getFeatures();
+var point2020=getFeatures2020();
 var osmNormalMapUrl = 'https://{s}.tile.osm.org/{z}/{x}/{y}.png',
     tiandituSatelliteMapUrl = 'http://t{s}.tianditu.gov.cn/DataServer?T=img_w&X={x}&Y={y}&L={z}&tk='+tiandituKey;
 
-var osmNormalMapOp = L.tileLayer(osmNormalMapUrl, {subdomains: 'abc',maxZoom: 21,minZoom: 2,opacity: 0.6}),
-    osmNormalMap = L.tileLayer(osmNormalMapUrl, {subdomains: 'abc',maxZoom: 21,minZoom: 2,coordType: 'gcj02'}),
-    tiandituSatelliteMap = L.tileLayer(tiandituSatelliteMapUrl, {subdomains: '01234567',maxZoom: 21,minZoom: 2}),
+var osmNormalMapOp = L.tileLayer(osmNormalMapUrl, {subdomains: 'abc',maxZoom: 21,minZoom: 3,opacity: 0.6}),
+    osmNormalMap = L.tileLayer(osmNormalMapUrl, {subdomains: 'abc',maxZoom: 21,minZoom: 3,coordType: 'gcj02'}),
+    tiandituSatelliteMap = L.tileLayer(tiandituSatelliteMapUrl, {subdomains: '01234567',maxZoom: 21,minZoom: 3}),
     heat = L.heatLayer(addressPoints,{minOpacity : 0.5,radius : 12,}),
-    dizhen= L.geoJSON([Point],{style:function(feature){},onEachFeature: onEachFeature})
-;
+    dizhen= L.geoJSON([Point],{style:function(feature){},onEachFeature: onEachFeature});
+
 
 
 var baseLayers = {
@@ -57,8 +59,8 @@ var overlayLayers = {
 
  "热力图":heat,
  
- "地震点":dizhen
-
+ "地震点":dizhen,
+ 
 };
 
 var map = new L.map('map',{zoom: 3,layers: [osmNormalMap]}).setView([34, 113], 4,);
@@ -78,12 +80,14 @@ mousePosition = L.control.myMousePosition(
 var polylineMeasure = L.control.polylineMeasure ({position:'topleft', unit:'kilometres', showBearings:true, clearMeasurementsOnStop: false, showClearControl: true, showUnitControl: true})
 polylineMeasure.addTo (map);
 
-
+;
 
 
 function onEachFeature(feature, layer) {
 	if (feature.properties.location && feature.properties.level&&feature.properties.lat&&feature.properties.long&&feature.properties.depth) {
-			popupContent = '地点:'+'\n'+feature.properties.location+'<br>'+'震级:'+feature.properties.level+'<br>'+'纬度:'+feature.properties.lat+'<br>'+'经度:'+feature.properties.long+'<br>'+'深度:'+feature.properties.depth+'m';
+			popupContent = '地点:'+'\n'+feature.properties.location+'<br>'+'震级:'+feature.properties.level+'<br>'+'纬度:'+feature.properties.lat+'<br>'+'经度:'+feature.properties.long+'<br>'+'深度:'+feature.properties.depth+'m'
+            +'<br>'+'<a href="https://s.weibo.com/weibo?q="target="_blank">在微博上搜索</a>'
+            ;
 			layer.bindPopup(popupContent);}}
 
 </script>
